@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbacb2414dc974448827c731c3756377, type: 3}
+  m_Name: Theme Editor
+  m_EditorClassIdentifier: 
+  custom1:
+    graphic1: {r: 1, g: 0.68602705, b: 0, a: 1}
+    text1:
+      serializedVersion: 2
+      rgba: 4294967295
+  custom2:
+    graphic2: {r: 0, g: 0.93085146, b: 1, a: 1}
+    text2:
+      serializedVersion: 2
+      rgba: 4294964703
+  custom3:
+    graphic3: {r: 0.26606238, g: 1, b: 0, a: 1}
+    text3:
+      serializedVersion: 2
+      rgba: 4293066721
+  currentColor: {r: 0.06170094, g: 1, b: 0, a: 1}
+  textColor:
+    serializedVersion: 2
+    rgba: 4294947838
