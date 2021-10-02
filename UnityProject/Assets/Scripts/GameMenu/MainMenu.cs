@@ -43,8 +43,13 @@ public class MainMenu : MonoBehaviour
         Application.Quit();
     }
 
-    public void StartGame()
+    public void GotoMusicSelect()
     {
         SceneManager.LoadScene("MusicSelect");
+    }
+
+    public void GotoNoteEditor()
+    {
+        SceneManager.LoadScene("NoteEditor");
     }
 }

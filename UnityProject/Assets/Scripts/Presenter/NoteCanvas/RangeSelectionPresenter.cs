@@ -35,7 +35,7 @@ namespace NoteEditor.Presenter
                     .Where(_ => NoteCanvas.IsMouseOverNotesRegion.Value)
                     .Select(_ => Input.mousePosition)
                     .Select(currentPos => new Rect(startPos, currentPos - startPos)))
-                .Do(rect => GLLineDrawer.Draw(ToLines(rect, selectionRectColor)))
+                .Do(rect => GLLineDrawer.Instance.Draw(ToLines(rect, selectionRectColor)))
                 .Do(_ => { if (!Audio.IsPlaying.Value) Deselect(); })
                 .SelectMany(rect => GetNotesWithin(rect))
                 .Do(kv => selectedNoteObjects[kv.Key] = kv.Value)

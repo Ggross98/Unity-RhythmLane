@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace NoteEditor.GLDrawing
 {
+
     /// <summary>
-    /// 画节拍线
-    /// 用的是GL
+    /// Draw lines of tempo
     /// </summary>
     public class GLLineDrawer : SingletonMonoBehaviour<GLLineDrawer>
     {
@@ -14,8 +14,8 @@ namespace NoteEditor.GLDrawing
         Material mat = default;
         List<Line> drawData = new List<Line>();
 
-        static int size = 0;
-        static int maxSize = 0;
+        /*static */int size = 0;
+        /*static */int maxSize = 0;
 
         void OnRenderObject()
         {
@@ -43,7 +43,7 @@ namespace NoteEditor.GLDrawing
             size = 0;
         }
 
-        public static void Draw(Line[] lines)
+        public /*static*/ void Draw(Line[] lines)
         {
             foreach (var line in lines)
             {
@@ -51,7 +51,7 @@ namespace NoteEditor.GLDrawing
             }
         }
 
-        public static void Draw(Line line)
+        public /*static*/ void Draw(Line line)
         {
             if (size < maxSize)
             {

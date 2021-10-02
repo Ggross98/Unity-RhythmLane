@@ -13,8 +13,8 @@ namespace NoteEditor.GLDrawing
         Material mat = default;
         List<Geometry> drawData = new List<Geometry>();
 
-        static int size = 0;
-        static int maxSize = 0;
+        /*static */int size = 0;
+        /*static */int maxSize = 0;
 
         void OnRenderObject()
         {
@@ -44,7 +44,7 @@ namespace NoteEditor.GLDrawing
             size = 0;
         }
 
-        public static void Draw(Geometry[] quads)
+        public /*static*/ void Draw(Geometry[] quads)
         {
             foreach (var quad in quads)
             {
@@ -52,7 +52,7 @@ namespace NoteEditor.GLDrawing
             }
         }
 
-        public static void Draw(Geometry quad)
+        public /*static*/ void Draw(Geometry quad)
         {
             if (size < maxSize)
             {

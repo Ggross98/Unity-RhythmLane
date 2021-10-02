@@ -93,7 +93,7 @@ namespace NoteEditor.Notes
                     ConvertUtils.CanvasToScreenPosition(nextPosition),
                     isSelected.Value || EditData.Notes.ContainsKey(note.next) && EditData.Notes[note.next].isSelected.Value ? selectedStateColor
                         : 0 < nextPosition.x - ConvertUtils.NoteToCanvasPosition(note.position).x ? longNoteColor : invalidStateColor))
-                .Subscribe(line => GLLineDrawer.Draw(line)));
+                .Subscribe(line => GLLineDrawer.Instance.Draw(line)));
         }
 
         void RemoveLink()

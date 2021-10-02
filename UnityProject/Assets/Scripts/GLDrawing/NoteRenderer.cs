@@ -25,7 +25,7 @@ namespace NoteEditor.GLDrawing
                     var screenPos = ConvertUtils.CanvasToScreenPosition(canvasPosOfNote);
                     var drawSize = 9 / NoteCanvas.ScaleFactor.Value;
                     //画音符
-                    GLQuadDrawer.Draw(new Geometry(
+                    GLQuadDrawer.Instance.Draw(new Geometry(
                         new[] {
                             new Vector3(screenPos.x, screenPos.y - drawSize, 0),
                             new Vector3(screenPos.x + drawSize, screenPos.y, 0),

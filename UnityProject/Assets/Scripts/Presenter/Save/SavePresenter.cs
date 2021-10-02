@@ -7,6 +7,7 @@ using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 namespace NoteEditor.Presenter
 {
@@ -32,16 +33,24 @@ namespace NoteEditor.Presenter
         [SerializeField]
         Text dialogMessageText = default;
 
+        [SerializeField]
+        Button exitButton = default;
+
         ReactiveProperty<bool> mustBeSaved = new ReactiveProperty<bool>();
+
+
 
         void Awake()
         {
             var editPresenter = EditNotesPresenter.Instance;
 
+            //Back to main menu when pressing escape or exit button
             this.UpdateAsObservable()
                 .Where(_ => Input.GetKeyDown(KeyCode.Escape))
-                .Subscribe(_ => Application.Quit());
+                .Merge(exitButton.OnClickAsObservable())
+                .Subscribe(_ => /*Application.Quit()*/ TryBack());
 
+            //Save when click ctrl+s
             var saveActionObservable = this.UpdateAsObservable()
                 .Where(_ => KeyInput.CtrlPlus(KeyCode.S))
                 .Merge(saveButton.OnClickAsObservable());
@@ -60,7 +69,7 @@ namespace NoteEditor.Presenter
                 .Do(unsaved => saveButton.GetComponent<Image>().color = unsaved ? unsavedStateButtonColor : savedStateButtonColor)
                 .ToReactiveProperty();
 
-            mustBeSaved.SubscribeToText(messageText, unsaved => unsaved ? "保存が必要な状態" : "");
+            mustBeSaved.SubscribeToText(messageText, unsaved => unsaved ? "Not saved." : "");
 
             saveActionObservable.Subscribe(_ => Save());
 
@@ -71,7 +80,8 @@ namespace NoteEditor.Presenter
                     mustBeSaved.Value = false;
                     saveDialog.SetActive(false);
                     Save();
-                    Application.Quit();
+                    //Application.Quit();
+                    DoBack();
                 });
 
             dialogDoNotSaveButton.AddListener(
@@ -80,7 +90,8 @@ namespace NoteEditor.Presenter
                 {
                     mustBeSaved.Value = false;
                     saveDialog.SetActive(false);
-                    Application.Quit();
+                    //Application.Quit();
+                    DoBack();
                 });
 
             dialogCancelButton.AddListener(
@@ -90,21 +101,29 @@ namespace NoteEditor.Presenter
                     saveDialog.SetActive(false);
                 });
 
-            Application.wantsToQuit += ApplicationQuit;
+            //Application.wantsToQuit += Back;
         }
 
-        bool ApplicationQuit()
+        public void TryBack()
         {
             if (mustBeSaved.Value)
             {
-                dialogMessageText.text = "Do you want to save the changes you made in the note '"
+                dialogMessageText.text = "Do you want to save the changes you made in the note?"
                     + EditData.Name.Value + "' ?" + System.Environment.NewLine
                     + "Your changes will be lost if you don't save them.";
                 saveDialog.SetActive(true);
-                return false;
+                
             }
+            else
+            {
+                DoBack();
+            }
+            
+        }
 
-            return true;
+        void DoBack()
+        {
+            SceneManager.LoadScene(0);
         }
 
         public void Save()
@@ -120,7 +139,7 @@ namespace NoteEditor.Presenter
 
             var json = EditDataSerializer.Serialize();
             File.WriteAllText(filePath, json, System.Text.Encoding.UTF8);
-            messageText.text = filePath + " に保存しました";
+            messageText.text = filePath + " saved.";
         }
     }
 }

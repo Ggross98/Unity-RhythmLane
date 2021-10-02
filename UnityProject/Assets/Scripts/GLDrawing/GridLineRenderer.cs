@@ -140,7 +140,7 @@ namespace NoteEditor.GLDrawing
                     {
                         if (beatLines[i].start.x > 0)
                         {
-                            GLLineDrawer.Draw(beatLines[i]);
+                            GLLineDrawer.Instance.Draw(beatLines[i]);
 
                             if (i % (EditData.LPB.Value * 4 * intervalFactor) == 0)
                             {
@@ -152,7 +152,7 @@ namespace NoteEditor.GLDrawing
                     }
                     BeatNumberRenderer.End();
 
-                    GLLineDrawer.Draw(blockLines);
+                    GLLineDrawer.Instance.Draw(blockLines);
                 });
         }
 

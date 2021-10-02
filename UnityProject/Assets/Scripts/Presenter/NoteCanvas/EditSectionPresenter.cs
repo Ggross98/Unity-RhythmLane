@@ -83,7 +83,7 @@ namespace NoteEditor.Presenter
 
         void LateUpdate()
         {
-            GLQuadDrawer.Draw(drawData);
+            GLQuadDrawer.Instance.Draw(drawData);
         }
     }
 }
