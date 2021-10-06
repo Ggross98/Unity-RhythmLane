@@ -36,6 +36,7 @@ namespace Game.Process
 
         }
 
+        /*
         public GameObject GetNote(int num)
         {
             for (int i = 0; i < noteList.Count; i++)
@@ -51,7 +52,8 @@ namespace Game.Process
             GameObject note = CreateNote(num);
             note.SetActive(true);
             return note;
-        }
+        }*/
+
 
         public GameNote GetNote(MusicDTO.Note n)
         {
@@ -84,19 +86,18 @@ namespace Game.Process
             return obj;
         }
 
+        /*
         private GameObject CreateNote(int num)
         {
             GameObject obj = Instantiate(notePrefab);
             obj.SetActive(false);
             noteList.Add(obj);
             return obj;
-        }
+        }*/
 
         public GameObject CreateNote(MusicDTO.Note n)
         {
-            GameObject obj = Instantiate(notePrefab);
-            obj.SetActive(false);
-            noteList.Add(obj);
+            var obj = CreateNote();
             obj.GetComponent<GameNote>().Init(n);
             return obj;
         }

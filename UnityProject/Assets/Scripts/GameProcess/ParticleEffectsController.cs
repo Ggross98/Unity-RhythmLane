@@ -4,9 +4,16 @@ using UnityEngine;
 
 using NoteEditor.Utility;
 
-public class EffectController : SingletonMonoBehaviour<EffectController>
+/// <summary>
+/// 例子特效生成
+/// </summary>
+public class ParticleEffectsController : SingletonMonoBehaviour<ParticleEffectsController>
 {
-    public ParticleSystem click;
+    [SerializeField]
+    private ParticleSystem click;
+
+    [SerializeField]
+    //private Transform effectParent;
 
     public void CreateClickEffect(Vector3 pos)
     {

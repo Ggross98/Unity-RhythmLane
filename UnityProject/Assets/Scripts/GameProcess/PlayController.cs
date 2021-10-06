@@ -8,6 +8,9 @@ using NoteEditor.Utility;
 
 namespace Game.Process
 {
+    /// <summary>
+    /// 管理键盘输入和音符判定
+    /// </summary>
     public class PlayController : SingletonMonoBehaviour<PlayController>
     {
 
@@ -27,15 +30,15 @@ namespace Game.Process
 
         private KeyCode[] keys;
 
-        [HideInInspector]public bool autoplay = false;
+        public bool autoplay;
 
         public void Init(int c)
         {
             laneCount = c;
 
-            if (laneNotes.Count == laneCount )
+            if (laneNotes.Count == laneCount)
             {
-                for(int i = 0; i < laneCount; i++)
+                for (int i = 0; i < laneCount; i++)
                 {
                     laneNotes[i].Clear();
                 }
@@ -57,7 +60,7 @@ namespace Game.Process
             D_GREAT = MusicController.Instance.TimeToSample(0.15f);
             D_PERFECT = MusicController.Instance.TimeToSample(0.08f);
 
-            Debug.Log("Perfect samples: " + D_PERFECT);
+            //Debug.Log("Perfect samples: " + D_PERFECT);
 
             //LPB = NotesController.Instance.offset;
             //offset = NotesController.Instance.offset;
@@ -68,6 +71,9 @@ namespace Game.Process
             KEY4 = (KeyCode)(PlayerSettings.Instance.KEY4);
 
             keys = new KeyCode[] { KEY0, KEY1, KEY2, KEY3, KEY4 };
+
+            //autoplay = true;
+            if (autoplay) Debug.Log("Auto play mode");
 
         }
 
@@ -88,6 +94,11 @@ namespace Game.Process
 
             if (MusicController.Instance.GetSamples() <= 0) return;
 
+            for (int i = 0; i < laneCount; i++)
+            {
+                //ClickLane(i);
+                TryEnqueue(i);
+            }
 
             if (autoplay)
             {
@@ -108,13 +119,6 @@ namespace Game.Process
                     }
                 }
 
-                for (int i = 0; i < laneCount; i++)
-                {
-                    //ClickLane(i);
-                    TestQueue(i);
-                }
-
-
             }
 
 
@@ -125,16 +129,18 @@ namespace Game.Process
         
         public void NoteEnqueue(GameNote gn)
         {
-            laneNotes[gn.note.block].Enqueue(gn);
+            laneNotes[gn.Block()].Enqueue(gn);
         }
 
-        private void TestQueue(int lane)
+        //尝试将音符加入判定区
+        private void TryEnqueue(int lane)
         {
             GameNote gn;
             if (laneNotes[lane].Count > 0)
                 gn = laneNotes[lane].Peek();
             else return;
 
+            //如果该音符已经被错过，直接增加一个miss
             if(GetDeltaTime(gn) >= D_BAD)
             {
                 ComboPresenter.Instance.Combo(-1);
@@ -152,9 +158,10 @@ namespace Game.Process
                 gn = laneNotes[lane].Peek();
             else return;
 
-            if(Mathf.Abs(GetDeltaTime(gn)) == 0)
+            if(Mathf.Abs(GetDeltaTime(gn)) < MusicController.Instance.TimeToSample(0.02f))
             {
                 ClickLane(lane);
+                Debug.Log("auto click");
             }
         }
 
@@ -162,32 +169,34 @@ namespace Game.Process
         {
             if(PlayerSettings.Instance.clap == 1) SEPool.Instance.PlayClap();
 
+            //获取最近的仍在判定区的音符
             GameNote gn;
             if (laneNotes[lane].Count > 0)
                 gn = laneNotes[lane].Peek();
             else return;
 
-            Debug.Log(GetDeltaTime(gn));
+            //Debug.Log(GetDeltaTime(gn));
 
-            if (Mathf.Abs(GetDeltaTime(gn)) < D_PERFECT)
+            var delta = Mathf.Abs(GetDeltaTime(gn));
+            if ( delta < D_PERFECT)
             {
                 //Debug.Log(gn.name + " perfect");
                 ComboPresenter.Instance.Combo(0);
                 laneNotes[lane].Dequeue().Click();
             }
-            else if (Mathf.Abs(GetDeltaTime(gn)) < D_GREAT)
+            else if (delta < D_GREAT)
             {
                 ComboPresenter.Instance.Combo(1);
                 //Debug.Log(gn.name + " great");
                 laneNotes[lane].Dequeue().Click();
             }
-            else if (Mathf.Abs(GetDeltaTime(gn)) < D_GOOD)
+            else if (delta < D_GOOD)
             {
                 ComboPresenter.Instance.Combo(2);
                 //Debug.Log(gn.name + " good");
                 laneNotes[lane].Dequeue().Click();
             }
-            else if (Mathf.Abs(GetDeltaTime(gn)) < D_BAD)
+            else if (delta < D_BAD)
             {
                 ComboPresenter.Instance.Combo(3);
                 //Debug.Log(gn.name + " bad");

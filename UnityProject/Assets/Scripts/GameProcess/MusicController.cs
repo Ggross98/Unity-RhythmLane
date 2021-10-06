@@ -8,15 +8,18 @@ using NoteEditor.Utility;
 
 namespace Game.Process
 {
+    /// <summary>
+    /// 管理音乐的播放、切换、暂停等
+    /// </summary>
     public class MusicController : SingletonMonoBehaviour<MusicController>
     {
-        [SerializeField]private AudioSource music;
+        [SerializeField] private AudioSource music;
 
         [SerializeField] private int samples;
 
         private float volume;
 
-        public Text musicName, musicTime;
+        //public Text musicName, musicTime;
 
         //public bool playing;
 
@@ -50,7 +53,7 @@ namespace Game.Process
             
             music.Stop();
 
-            musicName.text = music.clip.name;
+            //musicName.text = music.clip.name;
         }
 
         public AudioClip GetMusic()
@@ -72,7 +75,7 @@ namespace Game.Process
         {
             samples = GetSamples();
 
-            ShowMusicTime();
+            //ShowMusicTime();
         }
 
         public float SampleToTime(float s)
@@ -89,12 +92,15 @@ namespace Game.Process
             return time * music.clip.frequency;
         }
 
-        
+        /*
         private void ShowMusicTime()
         {
             //musicName.text = music.clip.name;
+            if (music == null || music.clip == null)
+                return;
             musicTime.text = ComputeUtility.FormatTwoTime((int)music.time) + ":" + ComputeUtility.FormatTwoTime((int)music.clip.length);
         }
+        */
     }
 }
 

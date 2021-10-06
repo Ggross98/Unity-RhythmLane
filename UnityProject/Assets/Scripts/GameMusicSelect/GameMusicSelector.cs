@@ -59,7 +59,7 @@ namespace Game.MusicSelect
         {
             ContentClear();
 
-            Debug.Log(path);
+            //Debug.Log(path);
             
 
             if (Directory.Exists(path))
@@ -74,7 +74,7 @@ namespace Game.MusicSelect
 
                     if (!fileName.EndsWith(".json")) continue;
 
-                    Debug.Log(fileName);
+                    //Debug.Log(fileName);
 
                     CreateListItem(fileName);
 

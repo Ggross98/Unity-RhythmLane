@@ -214,6 +214,7 @@ GameObject:
   - component: {fileID: 122993006}
   - component: {fileID: 122993007}
   - component: {fileID: 122993008}
+  - component: {fileID: 122993009}
   m_Layer: 5
   m_Name: GameCanvas
   m_TagString: Untagged
@@ -316,6 +317,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxY: 560
   minY: -560
+  notePrefab: {fileID: 1342861589}
+  holdPrefab: {fileID: 0}
   targetLine: {fileID: 1184709754}
   clickLine: {fileID: 291500435}
   targetY: 0
@@ -330,9 +333,8 @@ MonoBehaviour:
   length: 0
   playTime: 0
   noteMoveTime: 0.8
-  noteWaitTime: 2
   debugMoving: 0
-  notesField: {fileID: 1110288444}
+  noteField: {fileID: 1110288444}
 --- !u!114 &122993007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -365,6 +367,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   click: {fileID: 5053352423630533430, guid: a57481d13c760da4db9d109d419af180, type: 3}
+--- !u!114 &122993009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 122993001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 629fb3009cb57cd44b769e910fca46e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CLICK_EFFECT_Y: 0
+  targetLine: {fileID: 1184709753}
 --- !u!1 &145697796
 GameObject:
   m_ObjectHideFlags: 0
@@ -1031,8 +1047,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -306.3}
-  m_SizeDelta: {x: 130, y: 467.30432}
+  m_AnchoredPosition: {x: 0, y: 0.023956}
+  m_SizeDelta: {x: 130, y: 1079.9521}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &437271334
 MonoBehaviour:
@@ -1047,7 +1063,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.6509804}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1484,7 +1500,6 @@ GameObject:
   - component: {fileID: 822587047}
   - component: {fileID: 822587046}
   - component: {fileID: 822587045}
-  - component: {fileID: 822587049}
   - component: {fileID: 822587050}
   m_Layer: 5
   m_Name: UICanvas
@@ -1576,20 +1591,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &822587049
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 822587044}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e61c67a99009a824a9be302ec3348714, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MusicName: {fileID: 187149505}
-  MusicTime: {fileID: 370837137}
 --- !u!114 &822587050
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2063,8 +2064,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   music: {fileID: 958105956}
   samples: 0
-  musicName: {fileID: 187149505}
-  musicTime: {fileID: 370837137}
 --- !u!1 &1007231698
 GameObject:
   m_ObjectHideFlags: 0
@@ -2641,7 +2640,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 26fefcbfaffccee459b7c855c5850118, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2671,13 +2670,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84942b7abb6ae6941b6a143c89dc785f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  note:
-    LPB: 0
-    num: 0
-    block: 0
-    type: 0
-    notes: []
-  num: 0
   time: 0
   clicked: 0
   inQueue: 0
@@ -2894,7 +2886,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1570496633}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &1570496635
 Camera:
   m_ObjectHideFlags: 0
@@ -3450,7 +3442,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2024593456
 RectTransform:
   m_ObjectHideFlags: 0

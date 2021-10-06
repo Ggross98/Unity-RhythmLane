@@ -25,6 +25,7 @@ namespace NoteEditor.DTO
             public int block;
             //音符类型（单击，长音）
             public int type;
+            //长音的后续音符
             public List<Note> notes;
         }
     }
