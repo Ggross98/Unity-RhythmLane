@@ -7,24 +7,25 @@ using UnityEngine.UI;
 
 namespace Game.Process
 {
-    public class GameNote : MonoBehaviour
+    public class NoteObject : MonoBehaviour
     {
         //音符信息
         private MusicDTO.Note note;
 
         //public int num, block;
-        public float time;
+        [SerializeField] public float time;
 
         //图片对象
         private Image image;
         
         //是否已经被点击过
-        public bool clicked = false;
+        [SerializeField] public bool clicked = false;
         //是否在判定队列中
-        public bool inQueue = false;
+        [SerializeField] public bool inQueue = false;
 
         //长音的后续音符
-        //public List<GameNote> notes;
+        private List<NoteObject> notes;
+        private List<HoldingBar> bars;
 
         //public bool moving = false;
         //public float moveSpeed;
@@ -67,6 +68,35 @@ namespace Game.Process
         public void SetColor(Color c)
         {
             image.color = c;
+        }
+
+        public void AddHoldingBar(HoldingBar hb)
+        {
+            if (bars == null) bars = new List<HoldingBar>();
+            else bars.Clear();
+
+            bars.Add(hb);
+
+        }
+
+        public HoldingBar GetHoldingBar()
+        {
+            if (bars == null || bars.Count == 0) return null;
+            else return bars[0];
+        }
+
+        public void AddNote(NoteObject n)
+        {
+            if (notes == null) notes = new List<NoteObject>();
+            else notes.Clear();
+
+            notes.Add(n);
+        }
+
+        public NoteObject GetNote()
+        {
+            if (notes == null || notes.Count == 0) return null;
+            else return notes[0];
         }
 
         public void Click()

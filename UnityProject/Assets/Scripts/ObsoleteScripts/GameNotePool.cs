@@ -11,14 +11,16 @@ namespace Game.Process
 {
     public class GameNotePool : SingletonMonoBehaviour<GameNotePool>
     {
-        [SerializeField]private GameObject notePrefab;
+        [SerializeField]private GameObject notePrefab, holdPrefab;
 
-        private List<GameObject> noteList= new List<GameObject>();
+        //private List<GameObject> noteList= new List<GameObject>();
 
         public Transform noteParent;
 
-        public int initSize = 1000;
+        //public int initSize = 1000;
 
+
+        /*
         public GameObject GetNote()
         {
             for(int i = 0; i < noteList.Count; i++)
@@ -35,7 +37,7 @@ namespace Game.Process
             return note;
 
         }
-
+        */
         /*
         public GameObject GetNote(int num)
         {
@@ -54,7 +56,7 @@ namespace Game.Process
             return note;
         }*/
 
-
+        /*
         public GameNote GetNote(MusicDTO.Note n)
         {
             for (int i = 0; i < noteList.Count; i++)
@@ -75,14 +77,14 @@ namespace Game.Process
             GameNote _gn = note.GetComponent<GameNote>();
             return _gn;
         }
-
+        */
 
 
         private GameObject CreateNote()
         {
             GameObject obj = Instantiate(notePrefab, noteParent);
             obj.SetActive(false);
-            noteList.Add(obj);
+            //noteList.Add(obj);
             return obj;
         }
 
@@ -98,10 +100,11 @@ namespace Game.Process
         public GameObject CreateNote(MusicDTO.Note n)
         {
             var obj = CreateNote();
-            obj.GetComponent<GameNote>().Init(n);
+            obj.GetComponent<NoteObject>().Init(n);
             return obj;
         }
 
+        /*
         public void Init()
         {
             for(int i = 0; i < noteList.Count; i++)
@@ -113,7 +116,7 @@ namespace Game.Process
             {
                 CreateNote();
             }
-        }
+        }*/
 
 
     }

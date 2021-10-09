@@ -16,7 +16,7 @@ namespace Game.Process
 
         [HideInInspector]public int laneCount;
 
-        private List<Queue<GameNote>> laneNotes = new List<Queue<GameNote>>();
+        private List<Queue<NoteObject>> laneNotes = new List<Queue<NoteObject>>();
 
         private int offset;
 
@@ -48,7 +48,7 @@ namespace Game.Process
                 laneNotes.Clear();
                 for (int i = 0; i < laneCount; i++)
                 {
-                    laneNotes.Add(new Queue<GameNote>());
+                    laneNotes.Add(new Queue<NoteObject>());
                 }
             }
 
@@ -127,7 +127,7 @@ namespace Game.Process
             
         }
         
-        public void NoteEnqueue(GameNote gn)
+        public void NoteEnqueue(NoteObject gn)
         {
             laneNotes[gn.Block()].Enqueue(gn);
         }
@@ -135,7 +135,7 @@ namespace Game.Process
         //尝试将音符加入判定区
         private void TryEnqueue(int lane)
         {
-            GameNote gn;
+            NoteObject gn;
             if (laneNotes[lane].Count > 0)
                 gn = laneNotes[lane].Peek();
             else return;
@@ -153,7 +153,7 @@ namespace Game.Process
 
         private void AutoClickLane(int lane)
         {
-            GameNote gn;
+            NoteObject gn;
             if (laneNotes[lane].Count > 0)
                 gn = laneNotes[lane].Peek();
             else return;
@@ -170,7 +170,7 @@ namespace Game.Process
             if(PlayerSettings.Instance.clap == 1) SEPool.Instance.PlayClap();
 
             //获取最近的仍在判定区的音符
-            GameNote gn;
+            NoteObject gn;
             if (laneNotes[lane].Count > 0)
                 gn = laneNotes[lane].Peek();
             else return;
@@ -213,7 +213,7 @@ namespace Game.Process
 
         }
 
-        private float GetDeltaTime(GameNote gn)
+        private float GetDeltaTime(NoteObject gn)
         {
             //Debug.Log(gn.num + ", " + ConvertUtils.NoteToSamples(gn.note, 1, BPM)+","+playtime);
             float d = (MusicController.Instance.GetSamples() - (gn.time + offset));

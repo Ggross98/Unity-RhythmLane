@@ -17,7 +17,7 @@ namespace Game.Process
         [SerializeField]
         public float maxY = 1120, minY = -40; //音符显示的最高和最低位置，低于最低位置的音符会被回收
 
-        [SerializeField] private GameObject notePrefab, holdPrefab;
+        [SerializeField] private GameObject notePrefab, holdNotePrefab, holdBarPrefab;
         //[SerializeField] private Transform noteParent;
 
 
@@ -29,9 +29,9 @@ namespace Game.Process
 
         List<MusicDTO.Note> notesInfo;//音符信息
 
-        List<GameNote> notesInScreen = new List<GameNote>();//激活的音符对象
-        List<GameNote> notesWaiting = new List<GameNote>(); //等待激活的音符对象
-        List<GameNote> notesOver = new List<GameNote>(); //激活结束的音符对象
+        List<NoteObject> notesInScreen = new List<NoteObject>();//激活的音符对象
+        List<NoteObject> notesWaiting = new List<NoteObject>(); //等待激活的音符对象
+        List<NoteObject> notesOver = new List<NoteObject>(); //激活结束的音符对象
 
         [SerializeField]
         public int notesPerFrame = 50; //每一帧最多生成的音符数量
@@ -180,7 +180,7 @@ namespace Game.Process
         {
             if (notesWaiting.Count > 0)
             {
-                foreach (GameNote gn in notesWaiting)
+                foreach (NoteObject gn in notesWaiting)
                 {
                     Destroy(gn.gameObject);
                 }
@@ -189,7 +189,7 @@ namespace Game.Process
 
             if (notesInScreen.Count > 0)
             {
-                foreach (GameNote gn in notesInScreen)
+                foreach (NoteObject gn in notesInScreen)
                 {
                     Destroy(gn.gameObject);
                 }
@@ -198,7 +198,7 @@ namespace Game.Process
 
             if (notesOver.Count > 0)
             {
-                foreach (GameNote gn in notesOver)
+                foreach (NoteObject gn in notesOver)
                 {
                     Destroy(gn.gameObject);
                 }
@@ -206,12 +206,14 @@ namespace Game.Process
             notesOver.Clear();
         }
 
-        private GameNote CreateNote()
+        private NoteObject CreateNote(int type)
         {
-            GameObject obj = Instantiate(notePrefab, noteField);
+            var prefab = (type == 1) ? notePrefab : holdNotePrefab;
+
+            GameObject obj = Instantiate(prefab);
             obj.SetActive(true);
             //noteList.Add(obj);
-            return obj.GetComponent<GameNote>();
+            return obj.GetComponent<NoteObject>();
         }
 
         private IEnumerator GenerateNotes()
@@ -224,24 +226,64 @@ namespace Game.Process
                 //生成音符对象
                 //GameNote gn = pool.GetNote(notesInfo[i]);
                 var dto = notesInfo[i];
+                var type = dto.type;
 
-                var gn = CreateNote();
-                gn.Init(dto);
-                notesWaiting.Add(gn);
+                var n = CreateNote(type);
+                n.Init(dto);
 
-                gn.transform.SetParent(noteField);
-                gn.transform.localScale = Vector3.one;
+                notesWaiting.Add(n);
+
+                n.transform.SetParent(noteField);
+                n.transform.localScale = Vector3.one;
 
                 //音符对象的时间
-                gn.time = ConvertUtils.NoteToSamples(gn, frequency, BPM) + playerOffset;
+                n.time = ConvertUtils.NoteToSamples(n, frequency, BPM) + playerOffset;
 
                 //音符对象的位置          
-                float x = LaneController.Instance.GetLaneX(gn.Block());
-                float y = targetY + noteMoveY *  MusicController.Instance.SampleToTime(gn.time + offset);
+                float x = LaneController.Instance.GetLaneX(n.Block());
+                float y = targetY + noteMoveY *  MusicController.Instance.SampleToTime(n.time + offset);
+                n.SetPosition(new Vector2(x, y));
 
-                //RectTransform rt = gn.GetComponent<RectTransform>();
-                //rt.anchoredPosition = new Vector2(x,y);
-                gn.SetPosition(new Vector2(x, y));
+                //对于长按音符，生成结尾音符和hold条
+                if(type == 2)
+                {
+                    if(dto.notes.Count == 0)
+                    {
+                        Debug.Log("Hold key has no ending!");
+                    }
+                    else
+                    {
+                        var endDto = dto.notes[0];
+
+                        var nn = CreateNote(2);
+                        nn.Init(endDto);
+
+                        notesWaiting.Add(nn);
+
+                        nn.transform.SetParent(noteField);
+                        nn.transform.localScale = Vector3.one;
+
+                        //音符对象的时间
+                        nn.time = ConvertUtils.NoteToSamples(nn, frequency, BPM) + playerOffset;
+
+                        //音符对象的位置          
+                        float xx = LaneController.Instance.GetLaneX(nn.Block());
+                        float yy = targetY + noteMoveY * MusicController.Instance.SampleToTime(nn.time + offset);
+                        nn.SetPosition(new Vector2(xx, yy));
+
+                        //生成条带
+                        var bar = Instantiate(holdBarPrefab, noteField).GetComponent<HoldingBar>();
+                        bar.transform.SetAsFirstSibling();
+                        bar.SetPosition(x, yy);
+                        bar.SetHeight(yy - y);
+
+                        n.AddNote(nn);
+                        n.AddHoldingBar(bar);
+
+
+                    }
+
+                }
 
                 
             }
@@ -470,7 +512,7 @@ namespace Game.Process
             {
                 if (notesWaiting[0].GetPosition().y + noteField.GetComponent<RectTransform>().anchoredPosition.y < clickFieldY)
                 {
-                    GameNote gn = notesWaiting[0];
+                    NoteObject gn = notesWaiting[0];
                     notesWaiting.Remove(gn);
                     notesInScreen.Add(gn);
 
@@ -485,7 +527,7 @@ namespace Game.Process
             {
                 if (notesInScreen[0].GetPosition().y + noteField.GetComponent<RectTransform>().anchoredPosition.y < minY)
                 {
-                    GameNote gn = notesInScreen[0];
+                    NoteObject gn = notesInScreen[0];
                     notesInScreen.Remove(gn);
                     notesOver.Add(gn);
                     //Destroy(gn.gameObject);

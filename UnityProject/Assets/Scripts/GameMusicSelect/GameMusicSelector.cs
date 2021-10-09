@@ -4,46 +4,61 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.Networking;
 
 using NoteEditor.DTO;
 using NoteEditor.Notes;
+
+
+//using Ggross.Utils;
 
 namespace Game.MusicSelect
 {
     public class GameMusicSelector : MonoBehaviour
     {
-        public Text pathText, pathSpaceHolder;
+        [SerializeField]private Text pathText, pathSpaceHolder;
 
         private string path;
 
         [SerializeField]private Transform contentField;
 
-        List<GameListItem> items = new List<GameListItem>();
+        private List<GameListItem> items = new List<GameListItem>();
 
-        [SerializeField]private GameObject itemPrefab;
+        [SerializeField] private GameObject itemPrefab;
 
-        public Text pathInfo, musicInfo, fileInfo;
+        [SerializeField] private Text pathInfo, musicInfo, fileInfo;
 
-        public Text bpm, time, notes;
+        [SerializeField] private Text bpm, time, notes;
 
-        [SerializeField]private AudioSource audio;
+        [SerializeField] private AudioSource audio;
 
         private bool notesLoaded = false, musicLoaded = false;
 
         void Start()
         {
             //默认路径：游戏目录中的Notes文件夹
-            pathSpaceHolder.text = System.Environment.CurrentDirectory + "\\Notes";
+
+            var p = PlayerSettings.Instance.musicPath;
+            if(p.Length < 3)
+                p = System.Environment.CurrentDirectory + "\\Notes";
+
+            pathSpaceHolder.text = p;
+
 
         }
 
+        /// <summary>
+        /// 从文本栏的地址中读取所有json文件并生成按钮
+        /// </summary>
         public void LoadJson()
         {
             if (pathText.text.Equals(""))
                 path = pathSpaceHolder.text;
             else path = pathText.text;
 
-            LoadJsonInDirectory(path);
+            var load = LoadJsonInDirectory(path);
+            if (load == 1)
+                PlayerSettings.Instance.SetMusicPath(path);
         }
 
         public void Quit()
@@ -55,12 +70,9 @@ namespace Game.MusicSelect
         /// 显示指定路径中的json文件，并创建对应的按钮
         /// </summary>
         /// <param name="path">文件路径</param>
-        private void LoadJsonInDirectory(string path)
+        private int LoadJsonInDirectory(string path)
         {
             ContentClear();
-
-            //Debug.Log(path);
-            
 
             if (Directory.Exists(path))
             {
@@ -73,19 +85,18 @@ namespace Game.MusicSelect
                     string fileName = files[i].Name;
 
                     if (!fileName.EndsWith(".json")) continue;
-
-                    //Debug.Log(fileName);
-
+                    
                     CreateListItem(fileName);
-
 
                 }
 
-                ShowLoadInfo(0, "Path is loaded.");
+                ShowLoadInfo(pathInfo, "Path is loaded.");
+                return 1;
             }
             else
             {
-                ShowLoadInfo(0, "Path does not exist!");
+                ShowLoadInfo(pathInfo, "Path does not exist!");
+                return 0;
             }
 
             
@@ -97,14 +108,14 @@ namespace Game.MusicSelect
 
 
         /// <summary>
-        /// 根据按钮的数据，生成json，读取音乐和谱面信息
+        /// 根据按钮的数据，读取.wav音乐和.json文件存储的谱面信息
         /// </summary>
         /// <param name="item"></param>
         public void LoadMusicInfo(GameListItem item)
         {
             if (item == null || !items.Contains(item))
             {
-                ShowLoadInfo(1, "Incorrect Json file!");
+                ShowLoadInfo(fileInfo, "Incorrect Json file!");
                 return;
             }
 
@@ -112,11 +123,12 @@ namespace Game.MusicSelect
             musicLoaded = false;
 
             //读取谱面信息
-            string name = Path.ChangeExtension(item.fileName, ".json");
-            string dir = Path.Combine(Path.GetDirectoryName(path), "Notes");
-            string newpath = Path.Combine(dir, name);
+            var name = Path.ChangeExtension(item.fileName, ".json");
+            var dir = path;
+            //string dir = Path.Combine(Path.GetDirectoryName(path), "Notes");
+            string jsonPath = Path.Combine(dir, name);
 
-            string json = File.ReadAllText(newpath, System.Text.Encoding.UTF8);
+            string json = File.ReadAllText(jsonPath, System.Text.Encoding.UTF8);
 
             LoadMusicInfoFromJson(json);
 
@@ -126,25 +138,41 @@ namespace Game.MusicSelect
 
         private IEnumerator LoadMusic(string n)
         {
-            ShowLoadInfo(2, "Music loading...");
+            ShowLoadInfo(musicInfo, "Music loading...");
 
-            string name = Path.ChangeExtension(n, ".wav");
-            string dir = Path.Combine(Path.GetDirectoryName(path), "Music");
-            string newpath = Path.Combine(dir, name);
+            var name = Path.ChangeExtension(n, ".wav");
+            var dir = path;
+            //string dir = Path.Combine(Path.GetDirectoryName(path), "Music");
+            string musicPath = Path.Combine(dir, name);
 
-            WWW www = new WWW(newpath);
-
+            /*
+            WWW www = new WWW(musicPath);
             yield return www;
-
             AudioClip clip = www.GetAudioClip();
+            */
 
-            if(clip == null)
+            var _unityWebRequest = UnityWebRequestMultimedia.GetAudioClip(musicPath, AudioType.WAV);
+            AudioClip clip = null;
+
+            yield return _unityWebRequest.SendWebRequest();
+
+            if (_unityWebRequest.isHttpError || _unityWebRequest.isNetworkError)
             {
-                ShowLoadInfo(2, "Music loaded incorrectly!");
+                Debug.Log(_unityWebRequest.error.ToString());
             }
             else
             {
-                ShowLoadInfo(2, "Music loaded.");
+                clip = DownloadHandlerAudioClip.GetContent(_unityWebRequest);
+            }
+
+            
+            if(clip == null)
+            {
+                ShowLoadInfo(musicInfo, "Music loaded incorrectly!");
+            }
+            else
+            {
+                ShowLoadInfo(musicInfo, "Music loaded.");
 
 
                 time.text = "Time\t\t" + ComputeUtility.FormatTwoTime((int)clip.length);
@@ -173,11 +201,11 @@ namespace Game.MusicSelect
 
             if(editData == null)
             {
-                ShowLoadInfo(1, "Incorrect Json file!");
+                ShowLoadInfo(fileInfo, "Incorrect Json file!");
                 return;
             }
 
-            ShowLoadInfo(1, "Json loaded!");
+            ShowLoadInfo(fileInfo, "Json loaded!");
             notesLoaded = true;
 
             bpm.text = "BPM\t\t" + editData.BPM;
@@ -192,40 +220,6 @@ namespace Game.MusicSelect
         public static void Deserialize(string json)
         {
             var editData = UnityEngine.JsonUtility.FromJson<MusicDTO.EditData>(json);
-            //var notePresenter = EditNotesPresenter.Instance;
-
-            /*EditData.BPM.Value = editData.BPM;
-            EditData.MaxBlock.Value = editData.maxBlock;
-            EditData.OffsetSamples.Value = editData.offset;*/
-
-
-
-
-            /*
-            foreach (var note in editData.notes)
-            {
-                if (note.type == 1)
-                {
-                    notePresenter.AddNote(ToNoteObject(note));
-                    continue;
-                }
-
-                var longNoteObjects = new[] { note }.Concat(note.notes)
-                    .Select(note_ =>
-                    {
-                        notePresenter.AddNote(ToNoteObject(note_));
-                        return EditData.Notes[ToNoteObject(note_).position];
-                    })
-                    .ToList();
-
-                for (int i = 1; i < longNoteObjects.Count; i++)
-                {
-                    longNoteObjects[i].note.prev = longNoteObjects[i - 1].note.position;
-                    longNoteObjects[i - 1].note.next = longNoteObjects[i].note.position;
-                }
-
-                EditState.LongNoteTailPosition.Value = NotePosition.None;
-            }*/
         }
 
         private void ContentClear()
@@ -252,8 +246,10 @@ namespace Game.MusicSelect
             items.Add(item);
         }
 
-        private void ShowLoadInfo(int index, string info)
+        private void ShowLoadInfo(Text text, string info)
         {
+            text.text = info;
+            /*
             switch (index)
             {
                 case 0:
@@ -266,14 +262,13 @@ namespace Game.MusicSelect
                     musicInfo.text = info;
                     break;
             }
+            */
         }
 
         public void StartGame()
         {
             if(notesLoaded && musicLoaded)
             {
-                DontDestroyOnLoad(NotesContainer.Instance.gameObject);
-
                 SceneManager.LoadScene("Game");
             }
             else

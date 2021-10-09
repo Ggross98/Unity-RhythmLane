@@ -12,5 +12,12 @@ namespace Game.MusicSelect
 
         public string json;
 
+        private void Awake()
+        {
+            DontDestroyOnLoad(this.gameObject);
+
+
+        }
+
     }
 }
