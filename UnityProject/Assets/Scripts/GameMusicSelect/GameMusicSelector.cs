@@ -30,7 +30,7 @@ namespace Game.MusicSelect
 
         [SerializeField] private Text bpm, time, notes;
 
-        [SerializeField] private AudioSource audio;
+        [SerializeField] private AudioSource audioSource;
 
         private bool notesLoaded = false, musicLoaded = false;
 
@@ -177,8 +177,8 @@ namespace Game.MusicSelect
 
                 time.text = "Time\t\t" + ComputeUtility.FormatTwoTime((int)clip.length);
 
-                audio.clip = clip;
-                audio.Play();
+                audioSource.clip = clip;
+                audioSource.Play();
 
                 clip.name = n;
 

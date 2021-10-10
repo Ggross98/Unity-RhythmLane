@@ -928,7 +928,7 @@ MonoBehaviour:
   bpm: {fileID: 1138565322}
   time: {fileID: 248037645}
   notes: {fileID: 93210159}
-  audio: {fileID: 2119807957}
+  audioSource: {fileID: 2119807957}
 --- !u!1 &955690518
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,6 +5,8 @@ using System.IO;
 using UniRx;
 using UnityEngine;
 
+using UnityEngine.Networking;
+
 namespace NoteEditor.Presenter
 {
     public class MusicLoader : MonoBehaviour
@@ -21,6 +23,32 @@ namespace NoteEditor.Presenter
 
         IEnumerator LoadMusic(string fileName)
         {
+            using(var _unityWebRequest = UnityWebRequestMultimedia.GetAudioClip(Path.Combine(MusicSelector.DirectoryPath.Value, fileName), AudioType.WAV)){
+                
+                yield return _unityWebRequest.SendWebRequest();
+
+                EditCommandManager.Clear();
+                ResetEditor();
+                
+                AudioClip clip = null;
+
+                if (_unityWebRequest.isHttpError || _unityWebRequest.isNetworkError)
+                {
+                    Debug.Log(_unityWebRequest.error.ToString());
+                }
+                else
+                {
+                    clip = DownloadHandlerAudioClip.GetContent(_unityWebRequest);
+                    Audio.Source.clip = clip;
+
+                    EditData.Name.Value = fileName;
+                    LoadEditData();
+                    Audio.OnLoad.OnNext(Unit.Default);
+                }
+
+            }
+            
+            /*
             using (var www = new WWW("file:///" + Path.Combine(MusicSelector.DirectoryPath.Value, fileName)))
             {
                 yield return www;
@@ -40,12 +68,14 @@ namespace NoteEditor.Presenter
                     Audio.OnLoad.OnNext(Unit.Default);
                 }
             }
+            */
         }
 
         void LoadEditData()
         {
             var fileName = Path.ChangeExtension(EditData.Name.Value, "json");
-            var directoryPath = Path.Combine(Path.GetDirectoryName(MusicSelector.DirectoryPath.Value), "Notes");
+            //var directoryPath = Path.Combine(Path.GetDirectoryName(MusicSelector.DirectoryPath.Value), "Notes");
+            var directoryPath = MusicSelector.DirectoryPath.Value;
             var filePath = Path.Combine(directoryPath, fileName);
 
             if (File.Exists(filePath))

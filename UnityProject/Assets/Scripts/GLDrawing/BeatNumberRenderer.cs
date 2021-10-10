@@ -24,6 +24,9 @@ namespace NoteEditor.GLDrawing
 
         static public void Render(Vector3 pos, int number)
         {
+
+            //Debug.Log("current active: "+countCurrentActive+", prev active: "+countPrevActive+", size: "+size);
+
             if (countCurrentActive < size)
             {
                 if (countCurrentActive >= countPrevActive)
