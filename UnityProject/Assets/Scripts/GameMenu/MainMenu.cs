@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+namespace Game.MainMenu{
 public class MainMenu : MonoBehaviour
 {
     public GameObject mainMenu, settingMenu, playMenu;
@@ -52,4 +53,6 @@ public class MainMenu : MonoBehaviour
     {
         SceneManager.LoadScene("NoteEditor");
     }
+}
+
 }

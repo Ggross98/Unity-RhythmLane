@@ -14,7 +14,7 @@ using NoteEditor.Notes;
 
 namespace Game.MusicSelect
 {
-    public class GameMusicSelector : MonoBehaviour
+    public class MusicSelector : MonoBehaviour
     {
         [SerializeField]private Text pathText, pathSpaceHolder;
 
@@ -22,7 +22,7 @@ namespace Game.MusicSelect
 
         [SerializeField]private Transform contentField;
 
-        private List<GameListItem> items = new List<GameListItem>();
+        private List<ListItem> items = new List<ListItem>();
 
         [SerializeField] private GameObject itemPrefab;
 
@@ -33,7 +33,21 @@ namespace Game.MusicSelect
         [SerializeField] private AudioSource audioSource;
 
         private bool notesLoaded = false, musicLoaded = false;
+        [SerializeField] private Button startButton, autoButton;
 
+
+        void Awake()
+        {
+            startButton.onClick.AddListener(() => {
+                StartGame(false);
+            });
+            startButton.interactable = false;
+
+            autoButton.onClick.AddListener(() => {
+                StartGame(true);
+            });
+            autoButton.interactable = false;
+        }
         void Start()
         {
             //默认路径：游戏目录中的Notes文件夹
@@ -45,6 +59,16 @@ namespace Game.MusicSelect
             pathSpaceHolder.text = p;
 
 
+        }
+
+        void Update(){
+            
+            var ready = musicLoaded && notesLoaded;
+            startButton.interactable = ready;
+            autoButton.interactable = ready;
+
+            if(Input.GetKeyDown(KeyCode.Escape))
+                Quit();
         }
 
         /// <summary>
@@ -73,6 +97,8 @@ namespace Game.MusicSelect
         private int LoadJsonInDirectory(string path)
         {
             ContentClear();
+            notesLoaded = false;
+            musicLoaded = false;
 
             if (Directory.Exists(path))
             {
@@ -98,20 +124,13 @@ namespace Game.MusicSelect
                 ShowLoadInfo(pathInfo, "Path does not exist!");
                 return 0;
             }
-
-            
-
         }
-
-
-
-
 
         /// <summary>
         /// 根据按钮的数据，读取.wav音乐和.json文件存储的谱面信息
         /// </summary>
         /// <param name="item"></param>
-        public void LoadMusicInfo(GameListItem item)
+        public void LoadMusicInfo(ListItem item)
         {
             if (item == null || !items.Contains(item))
             {
@@ -136,6 +155,7 @@ namespace Game.MusicSelect
             StartCoroutine(LoadMusic(item.fileName));
         }
 
+        //读取.wav音乐文件的携程
         private IEnumerator LoadMusic(string n)
         {
             ShowLoadInfo(musicInfo, "Music loading...");
@@ -226,7 +246,7 @@ namespace Game.MusicSelect
         {
             for(int i = 0; i < items.Count; i++)
             {
-                GameListItem item = items[i];
+                ListItem item = items[i];
                 items.Remove(item);
 
                 Destroy(item.gameObject);
@@ -240,7 +260,7 @@ namespace Game.MusicSelect
 
             GameObject obj = Instantiate(itemPrefab, contentField.transform);
 
-            GameListItem item = obj.GetComponent<GameListItem>();
+            ListItem item = obj.GetComponent<ListItem>();
             item.SetName(fileName);
 
             items.Add(item);
@@ -265,10 +285,12 @@ namespace Game.MusicSelect
             */
         }
 
-        public void StartGame()
-        {
+        public void StartGame(bool autoplay)
+        {   
             if(notesLoaded && musicLoaded)
             {
+                NotesContainer.Instance.autoplay = autoplay;
+
                 SceneManager.LoadScene("Game");
             }
             else

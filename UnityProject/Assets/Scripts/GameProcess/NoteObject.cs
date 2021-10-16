@@ -24,7 +24,9 @@ namespace Game.Process
         [SerializeField] public bool inQueue = false;
 
         //长音的后续音符
-        private List<NoteObject> notes;
+        [SerializeField]
+        private List<NoteObject> chainedNotes;
+        [SerializeField]
         private List<HoldingBar> bars;
 
         //public bool moving = false;
@@ -85,18 +87,18 @@ namespace Game.Process
             else return bars[0];
         }
 
-        public void AddNote(NoteObject n)
+        public void AddChainedNote(NoteObject n)
         {
-            if (notes == null) notes = new List<NoteObject>();
-            else notes.Clear();
+            if (chainedNotes == null) chainedNotes = new List<NoteObject>();
+            else chainedNotes.Clear();
 
-            notes.Add(n);
+            chainedNotes.Add(n);
         }
 
-        public NoteObject GetNote()
+        public NoteObject GetChainedNote()
         {
-            if (notes == null || notes.Count == 0) return null;
-            else return notes[0];
+            if (chainedNotes == null || chainedNotes.Count == 0) return null;
+            else return chainedNotes[0];
         }
 
         public void Click()
@@ -105,14 +107,55 @@ namespace Game.Process
             ParticleEffectsController.Instance.CreateClickEffect(new Vector3(transform.position.x, UISizeController.Instance.CLICK_EFFECT_Y));
 
             SetColor(Color.clear);
+
+            /*
+            if(Type() == 2){
+                if(GetNote()!=null && GetHoldingBar()!=null)
+                    StartCoroutine(HoldingEffect());
+            }
+            */
+
             //SEPool.Instance.PlayClap();
             clicked = true;
         }
 
+        private IEnumerator HoldingEffect(){
+
+            //Debug.Log("Show holding bar effect");
+
+            var note = GetChainedNote();
+            var bar = GetHoldingBar();
+            yield return (note && bar);
+
+            var parentRect = transform.parent.GetComponent<RectTransform>();
+            var startY = parentRect.anchoredPosition.y;
+            var startHeight = bar.GetHeight();
+
+            while(!note.clicked){
+
+                var y = startHeight - (startY - parentRect.anchoredPosition.y);
+
+                bar.SetHeight(y);
+                yield return new WaitForEndOfFrame();
+            }
+
+        }
+
         public void Miss()
         {
-            SetColor(Color.black);
+            SetColor(Color.gray);
             clicked = true;
+
+            if(Type() == 2){
+                if(GetChainedNote()){
+                    GetChainedNote().Miss();
+                }
+
+                if(GetHoldingBar()){
+                    GetHoldingBar().SetColor(Color.gray);
+                }
+            }
+
         }
 
         /*

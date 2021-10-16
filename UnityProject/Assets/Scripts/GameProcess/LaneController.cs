@@ -19,9 +19,8 @@ namespace Game.Process
 
         private float width;
 
-        public KeyCode KEY0 = KeyCode.A, KEY1 = KeyCode.S, KEY2 = KeyCode.D, KEY3 = KeyCode.F, KEY4 = KeyCode.G;
-
-        private KeyCode[] keys;
+        //public KeyCode KEY0 = KeyCode.A, KEY1 = KeyCode.S, KEY2 = KeyCode.D, KEY3 = KeyCode.F, KEY4 = KeyCode.G;
+        //private KeyCode[] keys;
 
         private bool playing = false;
 
@@ -34,11 +33,13 @@ namespace Game.Process
 
             width = laneParent.GetComponent<RectTransform>().sizeDelta.x;
 
+            /*
             KEY0 = (KeyCode)(PlayerSettings.Instance.KEY0);
             KEY1 = (KeyCode)(PlayerSettings.Instance.KEY1);
             KEY2 = (KeyCode)(PlayerSettings.Instance.KEY2);
             KEY3 = (KeyCode)(PlayerSettings.Instance.KEY3);
             KEY4 = (KeyCode)(PlayerSettings.Instance.KEY4);
+            */
 
         }
 
@@ -48,7 +49,7 @@ namespace Game.Process
 
 
 
-            keys = new KeyCode[] { KEY0, KEY1, KEY2, KEY3, KEY4 };
+            //keys = new KeyCode[] { KEY0, KEY1, KEY2, KEY3, KEY4 };
 
             if (laneCount<1 || laneCount > 5)
             {
@@ -68,7 +69,7 @@ namespace Game.Process
 
                     obj.name = "lane " + i;
 
-                    obj.GetComponentInChildren<Text>().text = keys[i].ToString();
+                    obj.GetComponentInChildren<Text>().text = PlayerSettings.Instance.GetKeyCode(i).ToString();
 
                     laneList.Add(obj);
 
@@ -90,7 +91,7 @@ namespace Game.Process
                 for(int i = 0; i < laneList.Count; i++)
                 {
                     
-                    if (Input.GetKey(keys[i]))
+                    if (Input.GetKey(PlayerSettings.Instance.GetKeyCode(i)))
                     {
                         imgList[i].gameObject.SetActive(true);
 

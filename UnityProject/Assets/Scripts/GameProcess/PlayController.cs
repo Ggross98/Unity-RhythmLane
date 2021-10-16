@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 using NoteEditor.Utility;
+using Game.MusicSelect;
 
 
 namespace Game.Process
@@ -17,6 +18,7 @@ namespace Game.Process
         [HideInInspector]public int laneCount;
 
         private List<Queue<NoteObject>> laneNotes = new List<Queue<NoteObject>>();
+        private bool[] laneHolding;
 
         private int offset;
 
@@ -24,13 +26,13 @@ namespace Game.Process
 
         //private float playtime;
 
-        private float D_PERFECT, D_GREAT, D_GOOD, D_BAD;
+        //private float D_PERFECT, D_GREAT, D_GOOD, D_BAD;
+        private Judgement judgement;
 
-        public KeyCode KEY0 = KeyCode.A, KEY1 = KeyCode.S, KEY2 = KeyCode.D, KEY3 = KeyCode.F, KEY4 = KeyCode.G;
+        //public KeyCode KEY0 = KeyCode.A, KEY1 = KeyCode.S, KEY2 = KeyCode.D, KEY3 = KeyCode.F, KEY4 = KeyCode.G;
+        //private KeyCode[] keys;
 
-        private KeyCode[] keys;
-
-        public bool autoplay;
+        private bool autoplay;
 
         public void Init(int c)
         {
@@ -52,27 +54,31 @@ namespace Game.Process
                 }
             }
 
+            laneHolding = new bool[laneCount];
+            for(int i = 0; i< laneCount;i++)
+                laneHolding[i] = false;
+            
+
             offset = NotesController.Instance.offset;
             BPM = NotesController.Instance.BPM;
 
-            D_BAD = MusicController.Instance.TimeToSample(0.35f);
-            D_GOOD = MusicController.Instance.TimeToSample(0.25f);
-            D_GREAT = MusicController.Instance.TimeToSample(0.15f);
-            D_PERFECT = MusicController.Instance.TimeToSample(0.08f);
-
-            //Debug.Log("Perfect samples: " + D_PERFECT);
+            judgement = new Judgement();
+            judgement.SetSampleRange(0.1f, 0.2f, 0.3f, 0.4f);
+            judgement.SetEarly(-0.6f);
 
             //LPB = NotesController.Instance.offset;
             //offset = NotesController.Instance.offset;
+            /*
             KEY0 = (KeyCode)(PlayerSettings.Instance.KEY0);
             KEY1 = (KeyCode)(PlayerSettings.Instance.KEY1);
             KEY2 = (KeyCode)(PlayerSettings.Instance.KEY2);
             KEY3 = (KeyCode)(PlayerSettings.Instance.KEY3);
             KEY4 = (KeyCode)(PlayerSettings.Instance.KEY4);
+            */
 
-            keys = new KeyCode[] { KEY0, KEY1, KEY2, KEY3, KEY4 };
+            //keys = new KeyCode[] { KEY0, KEY1, KEY2, KEY3, KEY4 };
 
-            //autoplay = true;
+            autoplay = NotesContainer.Instance.autoplay;
             if (autoplay) Debug.Log("Auto play mode");
 
         }
@@ -97,43 +103,41 @@ namespace Game.Process
             for (int i = 0; i < laneCount; i++)
             {
                 //ClickLane(i);
-                TryEnqueue(i);
-            }
+                TestMiss(i);
 
-            if (autoplay)
-            {
-                for (int i = 0; i < laneCount; i++)
+                if(autoplay)
+                    LaneAutoPlay(i);
+                else
                 {
-                    AutoClickLane(i);
+                    if (Input.GetKeyDown(PlayerSettings.Instance.GetKeyCode(i)))
+                        LaneKeyDown(i);
                     
+                    if(Input.GetKeyUp(PlayerSettings.Instance.GetKeyCode(i)))
+                        LaneKeyUp(i);
+
                 }
             }
-            else
-            {
-                
-                for (int i = 0; i < laneCount; i++)
-                {
-                    if (Input.GetKeyDown(keys[i]))
-                    {
-                        ClickLane(i);
-                    }
-                }
 
-            }
-
-
-
-
-            
         }
         
         public void NoteEnqueue(NoteObject gn)
         {
-            laneNotes[gn.Block()].Enqueue(gn);
+            if(gn == null)
+                Debug.Log("Note object is null!");
+            else if(gn.clicked)
+                Debug.Log("Note object is already clicked!");
+            else{
+                var lane = gn.Block();
+                if(lane < 0 || lane >= laneCount)
+                    Debug.Log("Note's block is false!");
+                else
+                    laneNotes[gn.Block()].Enqueue(gn);
+            }
+                
         }
 
-        //尝试将音符加入判定区
-        private void TryEnqueue(int lane)
+        //测试当前最近的音符是否miss
+        private void TestMiss(int lane)
         {
             NoteObject gn;
             if (laneNotes[lane].Count > 0)
@@ -141,17 +145,27 @@ namespace Game.Process
             else return;
 
             //如果该音符已经被错过，直接增加一个miss
-            if(GetDeltaTime(gn) >= D_BAD)
+            if(judgement.Out(gn))
             {
                 ComboPresenter.Instance.Combo(-1);
-                //Debug.Log(gn.name + " miss");
                 laneNotes[lane].Dequeue().Miss();
+
+                //如果该音符是长押的第一个音，则第二个音符也miss
+                if(gn.Type() == 2){
+                    laneHolding[lane] = false;
+
+                    var cn = gn.GetChainedNote();
+                    if(cn != null){
+                        if(cn == laneNotes[lane].Peek()){
+                            ComboPresenter.Instance.Combo(-1);
+                            laneNotes[lane].Dequeue().Miss();
+                        }
+                    }
+                }
             }
         }
 
-
-
-        private void AutoClickLane(int lane)
+        private void LaneAutoPlay(int lane)
         {
             NoteObject gn;
             if (laneNotes[lane].Count > 0)
@@ -160,12 +174,51 @@ namespace Game.Process
 
             if(Mathf.Abs(GetDeltaTime(gn)) < MusicController.Instance.TimeToSample(0.02f))
             {
-                ClickLane(lane);
-                Debug.Log("auto click");
+                var type = gn.Type();
+
+                switch(type){
+                    case 1:
+                        LaneKeyDown(lane);
+                        break;
+                    case 2:
+                        if(laneHolding[lane])  
+                            LaneKeyUp(lane);
+                        else
+                            LaneKeyDown(lane);
+                        break;
+                }
+
             }
         }
 
-        private void ClickLane(int lane)
+        private void LaneKeyUp(int lane){
+            if(laneHolding[lane]){
+                laneHolding[lane] = false;
+
+                //获取最近的仍在判定区的音符
+                NoteObject gn;
+                if (laneNotes[lane].Count > 0)
+                    gn = laneNotes[lane].Peek();
+                else{
+                    return;
+                }
+
+                //判定
+                var result = judgement.Judge(gn);
+                //过早则不予以判定
+                if(result == -2)
+                    return;
+                ComboPresenter.Instance.Combo(result);
+
+                if(result == -1) {
+                    laneNotes[lane].Dequeue().Miss();
+                } 
+                else {
+                    laneNotes[lane].Dequeue().Click();
+                }
+            }
+        }
+        private void LaneKeyDown(int lane)
         {
             if(PlayerSettings.Instance.clap == 1) SEPool.Instance.PlayClap();
 
@@ -175,42 +228,40 @@ namespace Game.Process
                 gn = laneNotes[lane].Peek();
             else return;
 
-            //Debug.Log(GetDeltaTime(gn));
+            //判定
+            var result = judgement.Judge(gn);
+            //过早则不予以判定
+            if(result == -2)
+                return;
+            ComboPresenter.Instance.Combo(result);
 
-            var delta = Mathf.Abs(GetDeltaTime(gn));
-            if ( delta < D_PERFECT)
-            {
-                //Debug.Log(gn.name + " perfect");
-                ComboPresenter.Instance.Combo(0);
-                laneNotes[lane].Dequeue().Click();
-            }
-            else if (delta < D_GREAT)
-            {
-                ComboPresenter.Instance.Combo(1);
-                //Debug.Log(gn.name + " great");
-                laneNotes[lane].Dequeue().Click();
-            }
-            else if (delta < D_GOOD)
-            {
-                ComboPresenter.Instance.Combo(2);
-                //Debug.Log(gn.name + " good");
-                laneNotes[lane].Dequeue().Click();
-            }
-            else if (delta < D_BAD)
-            {
-                ComboPresenter.Instance.Combo(3);
-                //Debug.Log(gn.name + " bad");
-                laneNotes[lane].Dequeue().Click();
-            }
-            else
-            {
-                ComboPresenter.Instance.Combo(-1);
-                //Debug.Log(gn.name + " miss");
+            var type = gn.Type();
+
+            if(result == -1) {
                 laneNotes[lane].Dequeue().Miss();
+
+                //如果该音符是长押的第一个音，则第二个音符也miss
+                if(gn.Type() == 2){
+                    laneHolding[lane] = false;
+
+                    var cn = gn.GetChainedNote();
+                    if(cn != null){
+                        if(cn == laneNotes[lane].Peek()){
+                            ComboPresenter.Instance.Combo(-1);
+                            laneNotes[lane].Dequeue().Miss();
+                        }
+                    }
+                }
+            } 
+            else {
+                laneNotes[lane].Dequeue().Click();
+
+                if(type == 2){
+                    laneHolding[lane] = true;
+                }
             }
-
+                
             
-
         }
 
         private float GetDeltaTime(NoteObject gn)
@@ -224,6 +275,75 @@ namespace Game.Process
 
 
     
+
+    }
+
+    class Judgement{
+
+        float[] sampleRange;
+
+        float early;
+
+        MusicController mc;
+        float offset;
+        int BPM;
+
+        public Judgement(){
+            mc = MusicController.Instance;
+            offset = NotesController.Instance.offset;
+            BPM = NotesController.Instance.BPM;
+        }
+
+        public void SetSampleRange(float perfect, float great, float good, float bad){
+
+            sampleRange = new float[]{
+                mc.TimeToSample(perfect),
+                mc.TimeToSample(great),
+                mc.TimeToSample(good),
+                mc.TimeToSample(bad),
+
+            };
+        }
+
+        public void SetEarly(float e){
+            early = mc.TimeToSample(e);
+        }
+
+        public float GetDeltaSample(NoteObject gn)
+        {
+            float d = (mc.GetSamples() - (gn.time + offset));
+            return d;
+        }
+
+        ///<summary>
+        ///对音符进行判定
+        ///<returns>0: perfect; 1: great; 2: good; 3: bad; -1: miss; -2: early, no judgement</returns>
+        ///</summary>
+        public int Judge(NoteObject gn){
+
+            var delta = GetDeltaSample(gn);
+
+            if(delta < early)
+                return -2;
+
+            delta = Mathf.Abs(delta);
+
+            for(int i = 0; i<4; i++){
+                if(delta <= sampleRange[i]) return i;
+            }
+            return -1;
+
+        }
+
+        public bool Out(NoteObject gn){
+            var delta = GetDeltaSample(gn);
+            return delta > sampleRange[3];
+        }
+
+        public bool IsMissed(NoteObject gn){
+            return Judge(gn) == -1;
+        }
+
 
     }
 

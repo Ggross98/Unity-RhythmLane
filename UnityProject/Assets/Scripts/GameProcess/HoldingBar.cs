@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HoldingBar : MonoBehaviour
 {
@@ -23,8 +24,16 @@ public class HoldingBar : MonoBehaviour
         rect.sizeDelta = new Vector2(GetComponent<RectTransform>().sizeDelta.x, height);
     }
 
+    public float GetHeight(){
+        return rect.sizeDelta.y;
+    }
+
     public void SetPosition(float x, float y)
     {
         rect.anchoredPosition = new Vector2(x, y);
+    }
+
+    public void SetColor(Color color){
+        GetComponent<Image>().color = color;
     }
 }

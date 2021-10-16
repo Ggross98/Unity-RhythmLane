@@ -14,8 +14,9 @@ namespace Game.Process
 {
     public class NotesController : SingletonMonoBehaviour<NotesController>
     {
+        
         [SerializeField]
-        public float maxY = 1120, minY = -40; //音符显示的最高和最低位置，低于最低位置的音符会被回收
+        private float maxY = 1120, minY = -40; //音符显示的最高和最低位置，低于最低位置的音符会被回收
 
         [SerializeField] private GameObject notePrefab, holdNotePrefab, holdBarPrefab;
         //[SerializeField] private Transform noteParent;
@@ -25,18 +26,19 @@ namespace Game.Process
         Image targetLine, clickLine;
 
         //Click Field：音符进入此区域时，单击对应键才会进行判定
-        [HideInInspector] public float targetY, clickFieldY;
+        [HideInInspector] 
+        public float targetY, clickFieldY;
 
-        List<MusicDTO.Note> notesInfo;//音符信息
+        private List<MusicDTO.Note> notesInfo;//音符信息
 
-        List<NoteObject> notesInScreen = new List<NoteObject>();//激活的音符对象
-        List<NoteObject> notesWaiting = new List<NoteObject>(); //等待激活的音符对象
-        List<NoteObject> notesOver = new List<NoteObject>(); //激活结束的音符对象
+        //private List<NoteObject> notesInScreen = new List<NoteObject>();//激活的音符对象
+        private List<NoteObject> notesWaiting = new List<NoteObject>(); //等待激活的音符对象
+        //List<NoteObject> notesOver = new List<NoteObject>(); //激活结束的音符对象
 
         [SerializeField]
         public int notesPerFrame = 50; //每一帧最多生成的音符数量
 
-        [HideInInspector]public int laneCount; //轨道数量
+        [HideInInspector] public int laneCount; //轨道数量
 
         [HideInInspector] public int BPM; //速度
 
@@ -49,7 +51,7 @@ namespace Game.Process
 
         [HideInInspector] public float frequency; //音乐频率
         [HideInInspector] public float length; //音乐时长
-        [HideInInspector] public float playTime = 0f; //音乐播放了多久
+        //[HideInInspector] public float playTime = 0f; //音乐播放了多久
 
         private bool playing = false; //播放中
         private bool loading = false; //加载中
@@ -65,9 +67,9 @@ namespace Game.Process
         //public AudioSource audioMusic;
 
         //自动播放
-        public bool debugMoving = false;
+        //public bool debugMoving = false;
 
-        private AudioClip defaultClip;
+        //private AudioClip defaultClip;
         //private 
 
         //public AudioClip clap;
@@ -80,8 +82,6 @@ namespace Game.Process
 
         void Awake()
         {
-
-
             #region 获取判定点、判定生效区的位置
             if (targetLine == null)
             {
@@ -96,7 +96,7 @@ namespace Game.Process
             #region  获取音符下落速度信息
             int speed = PlayerSettings.Instance.speed;
 
-            noteMoveTime = 2.5f - 0.02f * speed;
+            noteMoveTime = 2.5f - 0.021f * speed;
             noteMoveToEndTime = noteMoveTime * (maxY - minY) / (maxY - targetY);
             noteMoveY = (maxY - targetY) / noteMoveTime;
             #endregion
@@ -134,7 +134,9 @@ namespace Game.Process
             length = NotesContainer.Instance.music.length;
             #endregion
 
-            playerOffset = PlayerSettings.Instance.offset;
+            #region 加载玩家设定
+            playerOffset = PlayerSettings.Instance.playerOffset;
+            #endregion
 
 
         }
@@ -151,19 +153,12 @@ namespace Game.Process
             playing = false;
             loading = true;
             ready = false;
-            
 
             ResetMusic();
 
-
-
-            //GameNotePool.Instance.Init();
-
             PlayController.Instance.Init(laneCount);
-
             LaneController.Instance.CreateLanes(laneCount);
 
-         
             StartCoroutine(GenerateNotes());            
             //playing = true;
             //audioMusic.Play();
@@ -187,6 +182,7 @@ namespace Game.Process
             }
             notesWaiting.Clear();
 
+            /*
             if (notesInScreen.Count > 0)
             {
                 foreach (NoteObject gn in notesInScreen)
@@ -195,7 +191,9 @@ namespace Game.Process
                 }
             }
             notesInScreen.Clear();
+            */
 
+            /*
             if (notesOver.Count > 0)
             {
                 foreach (NoteObject gn in notesOver)
@@ -204,6 +202,7 @@ namespace Game.Process
                 }
             }
             notesOver.Clear();
+            */
         }
 
         private NoteObject CreateNote(int type)
@@ -257,8 +256,7 @@ namespace Game.Process
 
                         var nn = CreateNote(2);
                         nn.Init(endDto);
-
-                        notesWaiting.Add(nn);
+                        //notesWaiting.Add(nn);
 
                         nn.transform.SetParent(noteField);
                         nn.transform.localScale = Vector3.one;
@@ -274,11 +272,13 @@ namespace Game.Process
                         //生成条带
                         var bar = Instantiate(holdBarPrefab, noteField).GetComponent<HoldingBar>();
                         bar.transform.SetAsFirstSibling();
-                        bar.SetPosition(x, yy);
+                        bar.SetPosition(x, y);
                         bar.SetHeight(yy - y);
 
-                        n.AddNote(nn);
+                        //将尾判音符和长条与头部音符绑定
+                        n.AddChainedNote(nn);
                         n.AddHoldingBar(bar);
+                        nn.AddHoldingBar(bar);
 
 
                     }
@@ -328,6 +328,7 @@ namespace Game.Process
 
         void Update()
         {
+            #region 加载完成后，音符开始下落
             if(loading && ready)
             {
                 playing = true;
@@ -338,176 +339,12 @@ namespace Game.Process
                 Tweener tweener = noteField.GetComponent<RectTransform>().DOAnchorPosY(-noteMoveY * length, length);
                 tweener.SetEase(Ease.Linear);
             }
-
+            #endregion
 
             if (!playing) return;
 
-            
-
-            //int min = Mathf.Min(notesPerFrame, notesInfo.Count);
-
-            //Debug.Log("frequency: " + frequency);
-
-            //List<RectTransform> newnotes = new List<RectTransform>(); //待移动音符
-
-            //for(int i = 0; i < notesInfo.Count; i++)
-
-            #region  old logics
             /*
-            //激活音符
-            if (notesInfo.Count > 0)
-            {
-                MusicDTO.Note note = notesInfo[0];
-
-
-                //Debug.Log(note.num + ", " + note.LPB);
-
-                //float time = ConvertUtils.NoteToSamples(note, frequency, BPM);
-                //Debug.Log("note"+i+" "+time);
-
-                playTime = audioMusic.time;
-
-                if (playTime >= ConvertUtils.NoteToSamples(note, frequency, BPM) + offset - noteMoveTime - noteWaitTime)
-                {
-                    //读取或创建音符父对象
-                    NoteParent np = NoteParentPool.Instance.GetNoteParent(note.num).GetComponent<NoteParent>();
-                    np.time = ConvertUtils.NoteToSamples(note, frequency, BPM);
-
-                    parentWaiting.Add(np);
-
-                    while (note != null && ConvertUtils.NoteToSamples(note, frequency, BPM) + offset - noteMoveTime - noteWaitTime <= playTime)
-                    {
-                        //获得音符
-                        GameObject noteObj = GameNotePool.Instance.GetNote(note.num);
-                        GameNote n = noteObj.GetComponent<GameNote>();
-
-                        noteObj.transform.parent = np.transform;
-
-                        n.Init(note);
-                        //n.time = time;
-                        float x = LaneController.Instance.GetLaneX(note.block);
-                        Vector2 startPos = new Vector2(x, 0);
-                        n.SetPosition(startPos);
-                        noteObj.SetActive(true);
-                        notesWaiting.Add(n);
-
-
-                        notesInfo.Remove(note);
-                        if (notesInfo.Count > 0) note = notesInfo[0];
-                        else note = null;
-
-                        playTime = audioMusic.time;
-
-                    }
-                }
-
-                //np.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, maxY);
-
-                //n.StartMove(noteMoveY);
-                //Vector2 endPos = new Vector2(x, minY);
-                //newnotes.Add(n.GetComponent<RectTransform>());
-
-                //Tweener tweener = n.GetComponent<RectTransform>().DOAnchorPos(endPos, noteMoveToEndTime-Time.deltaTime);
-                //tweener.SetEase(Ease.Linear);
-
-                //min--;
-            }
-            
-            /*
-            if (newnotes.Count > 0)
-            {
-                foreach(RectTransform rt in newnotes)
-                {
-                    Tweener tweener = rt.DOAnchorPosY(minY, noteMoveToEndTime - Time.deltaTime);
-                    tweener.SetEase(Ease.Linear);
-                }
-            }*/
-
-            /*
-            for(int i = 0; i < parentWaiting.Count; i++)
-            {
-                GameNote n = notesWaiting[i];
-                if(playTime >= n.time  + offset - noteMoveTime)
-                {
-                    Debug.Log(n.name+"start move");
-                    //n.StartMove(noteMoveY);
-
-                    /*RectTransform rt = n.GetComponent<RectTransform>();
-                    Tweener tweener = rt.DOAnchorPosY(minY, noteMoveToEndTime - Time.deltaTime);
-                    tweener.SetEase(Ease.Linear);
-
-                    notesWaiting.Remove(n);
-                    notesInScreen.Add(n);
-                }*/
-            /*
-            NoteParent parent = parentWaiting[i];
-
-            playTime = audioMusic.time;
-
-            if (playTime >= parent.time + offset - noteMoveTime)
-            {
-                RectTransform rt = parent.GetComponent<RectTransform>();
-                Tweener tweener = rt.DOAnchorPosY(minY, noteMoveToEndTime - Time.deltaTime);
-                tweener.SetEase(Ease.Linear);
-
-                parentWaiting.Remove(parent);
-                parentInScreen.Add(parent);
-
-                for(int j = 0; j < notesWaiting.Count; j++)
-                {
-                    if(notesWaiting[j].GetComponent<GameNote>().note.num == parent.num)
-                    {
-                        notesInScreen.Add(notesWaiting[j]);
-                        notesWaiting.RemoveAt(j);
-                    }
-                }
-            }
-        }*/
-
-
-            //float deltaY = noteMoveY * Time.deltaTime;
-            /*
-
-            //把落到底部的音符父对象回收
-            for (int i = 0; i < parentInScreen.Count; i++)
-            {
-                NoteParent parent = parentInScreen[i];
-
-
-                if (parent.GetComponent<RectTransform>().anchoredPosition.y <= minY)
-                {
-                    foreach (Transform child in parent.transform)
-                    {
-                        GameNote note = child.GetComponent<GameNote>();
-
-                        if (note != null)
-                        {
-                            note.gameObject.SetActive(false);
-                            notesInScreen.Remove(note);
-                        }
-                    }
-
-                    parent.gameObject.SetActive(false);
-                    parentInScreen.Remove(parent);
-                }
-            }*/
-
-            /*
-            //回收音符
-            for (int i = 0; i < notesInScreen.Count; i++)
-            {
-                GameNote note = notesInScreen[i];
-
-                if (note.gameObject.activeSelf == false)
-                {
-                    note.transform.parent = NoteParentPool.Instance.noteField;
-                    notesInScreen.Remove(note);
-                }
-
-            }
-            */
-            #endregion
-
+            #region 将进入一定距离的音符加入判定队列
             if (notesWaiting.Count > 0)
             {
                 if (notesWaiting[0].GetPosition().y + noteField.GetComponent<RectTransform>().anchoredPosition.y < clickFieldY)
@@ -517,12 +354,28 @@ namespace Game.Process
                     notesInScreen.Add(gn);
 
                     PlayController.Instance.NoteEnqueue(gn);
-
                     //Destroy(gn.gameObject);
                 }
             }
+            #endregion
+            */
 
+            #region 将所有音符加入判定队列中
+            while(notesWaiting.Count > 0){
+                var gn = notesWaiting[0];
+                notesWaiting.Remove(gn);
+                PlayController.Instance.NoteEnqueue(gn);
 
+                if(gn.Type() == 2){
+                    var cn = gn.GetChainedNote();
+                    PlayController.Instance.NoteEnqueue(cn);
+                }
+            }
+            #endregion
+
+            //playTime = MusicController.Instance.GetTime();
+            
+            /*
             if (notesInScreen.Count > 0)
             {
                 if (notesInScreen[0].GetPosition().y + noteField.GetComponent<RectTransform>().anchoredPosition.y < minY)
@@ -532,18 +385,17 @@ namespace Game.Process
                     notesOver.Add(gn);
                     //Destroy(gn.gameObject);
                 }
-            }
+            }*/
             
-            //playTime += Time.deltaTime;
-            playTime = MusicController.Instance.GetTime();
-            //GameUI.Instance.ShowMusicTime((int)playTime, (int)length);
-
+            
+            #region 音乐播放完成后，结束游戏
             if(!MusicController.Instance.IsPlaying())
             {
                 playing = false;
 
                 ComboPresenter.Instance.ShowResult();
             }
+            #endregion
 
         }
 

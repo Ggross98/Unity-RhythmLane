@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Game.MusicSelect
 {
-    public class GameListItem : MonoBehaviour
+    public class ListItem : MonoBehaviour
     {
 
         Image image;

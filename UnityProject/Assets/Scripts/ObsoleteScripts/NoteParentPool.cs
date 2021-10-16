@@ -41,7 +41,7 @@ namespace Game.Process
                     p.num = num;
                     p.hit = false;
                     obj.name = "NoteParent " + num;
-                    obj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, NotesController.Instance.maxY);
+                    //obj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, NotesController.Instance.maxY);
                     obj.SetActive(true);
                     return obj;
                 }
@@ -63,7 +63,7 @@ namespace Game.Process
             parent.num = num;
 
             obj.name = "NoteParent " + num;
-            obj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, NotesController.Instance.maxY);
+            //obj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, NotesController.Instance.maxY);
 
             objList.Add(parent);
             return obj;

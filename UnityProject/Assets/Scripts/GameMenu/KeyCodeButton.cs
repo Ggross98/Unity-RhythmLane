@@ -4,6 +4,7 @@ using UnityEngine;
 
 using UnityEngine.UI;
 
+namespace Game.MainMenu{
 public class KeyCodeButton : MonoBehaviour
 {
     [SerializeField]private Button button;
@@ -31,8 +32,7 @@ public class KeyCodeButton : MonoBehaviour
 
     public void SetKeyCode(int i)
     {
-        keyCode = (KeyCode)i;
-        keyText.text = keyCode.ToString();
+        SetKeyCode((KeyCode)i);
     }
 
     public void SetKeyCode(KeyCode kc)
@@ -49,7 +49,7 @@ public class KeyCodeButton : MonoBehaviour
             {
                 if (Input.anyKeyDown)
                 {
-                    for (KeyCode kc = KeyCode.Colon; kc < KeyCode.Z; kc++)
+                    for (KeyCode kc = KeyCode.Space; kc < KeyCode.Insert; kc++)
                     {
                         if (Input.GetKeyDown(kc))
                         {
@@ -65,4 +65,7 @@ public class KeyCodeButton : MonoBehaviour
             //button.GetComponentInChildren<Text>().text = keyCode.ToString();
         }
     }
+}
+
+    
 }

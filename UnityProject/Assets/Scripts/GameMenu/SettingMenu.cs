@@ -4,7 +4,7 @@ using UnityEngine;
 
 using UnityEngine.UI;
 
-namespace Game.Menu
+namespace Game.MainMenu
 {
     public class SettingMenu : MonoBehaviour
     {
@@ -15,6 +15,7 @@ namespace Game.Menu
         public Text offsetText;
 
         public KeyCodeButton key0, key1, key2, key3, key4;
+        private KeyCodeButton[] buttons;
 
         public Toggle clap;
 
@@ -38,16 +39,21 @@ namespace Game.Menu
             musicSlider.value = setting.musicVolume;
             musicText.text = (int)(100 * musicSlider.value) + "";
 
+            buttons = new KeyCodeButton[]{key0, key1, key2, key3, key4};
+            for(int i = 0;i<5;i++){
+                buttons[i].SetKeyCode(setting.GetKeyCode(i));
+            }
+            /*
             key0.SetKeyCode(setting.KEY0);
             key1.SetKeyCode(setting.KEY1);
             key2.SetKeyCode(setting.KEY2);
             key3.SetKeyCode(setting.KEY3);
             key4.SetKeyCode(setting.KEY4);
-
+            */
             clap.isOn = (setting.clap == 1);
 
-            offsetSlider.value = setting.offset;
-            offsetText.text = setting.offset + "";
+            offsetSlider.value = setting.playerOffset;
+            offsetText.text = setting.playerOffset + "";
 
             speedSlider.value = setting.speed;
             speedText.text = setting.speed + "";

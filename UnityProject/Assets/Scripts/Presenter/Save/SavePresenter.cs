@@ -129,7 +129,8 @@ namespace NoteEditor.Presenter
         public void Save()
         {
             var fileName = Path.ChangeExtension(EditData.Name.Value, "json");
-            var directoryPath = Path.Combine(Path.GetDirectoryName(MusicSelector.DirectoryPath.Value), "Notes");
+            var directoryPath = MusicSelector.DirectoryPath.Value;
+            //var directoryPath = Path.Combine(Path.GetDirectoryName(MusicSelector.DirectoryPath.Value), "Notes");
             var filePath = Path.Combine(directoryPath, fileName);
 
             if (!Directory.Exists(directoryPath))
