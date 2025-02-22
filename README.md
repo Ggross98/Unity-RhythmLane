@@ -1,15 +1,34 @@
 # RhythmLane
- 下落式音游及其谱面编辑器，使用Unity开发  
- 由于作者转向Godot开发，本项目短期内不再更新
- ## 乐谱编辑器
- 乐谱编辑器部分引自[setchi的作品](https://github.com/setchi/NoteEditor)，支持wav格式音频，2-5轨谱面编辑 
- ![Score editor](/screenshots/editor.png "Score editor")
- ## 下落式音游
- 已实装普通及长按两种Note  
-  ![Game play](/screenshots/play.png "Game play")
- 键盘控制，支持键位及延迟调整
-  ![Settings](/screenshots/set.png "Ssettings")
- ## 乐谱
- 使用方法：将编辑器生成的.json文件与.wav文件放入同一个文件夹，在选择界面输入相应路径
- ![Score selector](/screenshots/select.png "Score selector")
- 部分测试乐谱已发布
+[中文版](README_zh.md)  
+## Overview
+Rhythm game with falling notes (like djmax or osumania) and a corresponding sheet editor. Made with Unity.  
+    
+![Main menu](screenshots/menu.png)
+
+## Contents
+### Note editor
+This part of content is from [setchi](https://github.com/setchi/NoteEditor). Thanks a lot for this great work!  
+The editor supports:  
+* Load .wav music files
+* Edit on 2-5 tracks with 2 types of notes (normal and holding note)
+* Set the beats and offset
+* Save the sheet as .json file    
+![Editor](screenshots/editor.png)  
+
+### Gameplay
+* Load and play the .json sheet file! An autoplay mode is also available.  
+![Music select](screenshots/select.png)  
+![Game play](screenshots/game.png)  
+
+### Other
+Some setting options are provided:
+* Resolution and volume
+* Key position
+* The game delay
+* Note falling speed
+![Settings](screenshots/settings.png)
+
+## How to play
+You can download the game and a test sheet (.wav and .json files) in release.  
+Or you can open the project with Unity 2022.3.53 f1c1.  
+
