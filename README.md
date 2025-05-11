@@ -2,6 +2,10 @@
 [中文版](README_zh.md)  
 ## Overview
 Rhythm game with falling notes (like djmax or osumania) and a corresponding sheet editor. Made with Unity.  
+  
+**Current issues**    
+* There are problems with the holding keys.
+* This project may be migrated to Godot.  
     
 ![Main menu](screenshots/menu.png)
 
