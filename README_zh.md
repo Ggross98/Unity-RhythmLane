@@ -2,6 +2,8 @@
 [English](README.md)  
 ## 项目简介
 下落式音游及对应的乐谱编辑器。使用Unity及C#开发！  
+* 目前下落式音游部分中，Holding键的判定存在问题，待修复
+* 本项目不再定时更新，将来可能移植为Godot项目
     
 ![Main menu](screenshots/menu.png)
 
