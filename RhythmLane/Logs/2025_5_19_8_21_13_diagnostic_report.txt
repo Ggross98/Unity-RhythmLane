@@ -1,0 +1,129 @@
+Unity Package Manager Diagnostics (v0.4.3)
+============
+Ran 20 checks
+============
+12 succeeded
+4 failed
+4 did not run
+============
+✅ UPM registry reachable (PASS)
+Make an HTTP request to the UPM package registry
+>> HTTP/1.1 200 OK
+>> X-Powered-By: Express
+>> Date: Mon, 19 May 2025 08:21:17 GMT
+>> Via: 1.1 google
+>> Transfer-Encoding: chunked
+>> Alt-Svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+>> Connection: close
+
+✅ Ping UPM registry (PASS)
+Measure the latency of the UPM package registry API
+>> 12 pings made in 5.223 seconds
+>> Average latency: 44.61 ms
+>> Minimum latency: 37.17 ms
+>> Maximum latency: 58.72 ms
+>> Standard deviation: 6.82
+
+✅ Ping UPM download (PASS)
+Measure the latency of the UPM package download endpoint
+>> 8 pings made in 5.167 seconds
+>> Average latency: 44.86 ms
+>> Minimum latency: 38.02 ms
+>> Maximum latency: 53.51 ms
+>> Standard deviation: 6.00
+
+✅ UPM registry download speed (PASS)
+Test the Internet connection using the UPM package registry
+>> Measured speed to the UPM registry: 94.20 Megabits per second
+
+✅ HTTP proxy environment variables (PASS)
+Detect whether proxy-related environment variables are set (HTTP_PROXY, HTTPS_PROXY, ALL_PROXY, NO_PROXY, UNITY_PROXYSERVER, UNITY_NOPROXY)
+>> No proxy support has been configured through environment variables.
+
+❓ System Proxy configuration (UNKNOWN)
+Detect proxy configuration at the system level
+>> The proxy auto configuration feature is not enabled.
+
+❓ UPM IPC connection (UNKNOWN)
+Test connection to UPM via IPC connection
+>> Could not find UPM executable at path 'D:\Program Files\Unity\Hub\Editor\2022.3.57f1c2\Editor\Data\Resources\PackageManager\Server\UnityPackageManager.exe'
+
+✅ Access Genesis Global API (PASS)
+Access Genesis Global API
+>> https://api.unity.com/v1/countries is reachable
+
+✅ Access Core Global API (PASS)
+Access Core Global API
+>> https://core.cloud.unity3d.com/api/oauth2_provider is reachable
+
+✅ Access ID Portal (PASS)
+Access ID Portal
+>> https://id.unity.com/check is reachable
+
+✅ Access Licensing Server (PASS)
+Access Licensing Server
+>> https://license.unity3d.com is reachable
+
+❌ Access All Releases Page (FAIL)
+access All Releases Page
+>> Request 'https://unity3d.com/unity/releases.xml' failed with status code [504]. Server response:
+>> HTTP/1.1 504 Gateway Time-out
+>> Content-Type: text/html
+>> Content-Length: 26
+>> Date: Mon, 19 May 2025 08:21:35 GMT
+>> Connection: close
+
+❌ Access Beta Latest Releases Page (FAIL)
+Access Beta Latest Releases Page
+>> Request 'https://unity3d.com/unity/beta/latest.xml' failed with status code [504]. Server response:
+>> HTTP/1.1 504 Gateway Time-out
+>> Content-Type: text/html
+>> Content-Length: 26
+>> Date: Mon, 19 May 2025 08:21:35 GMT
+>> Connection: close
+
+❌ Access LTS Releases Page (FAIL)
+Access LTS Releases Page
+>> Request 'https://unity3d.com/unity/lts-releases.xml' failed with status code [504]. Server response:
+>> HTTP/1.1 504 Gateway Time-out
+>> Content-Type: text/html
+>> Content-Length: 26
+>> Date: Mon, 19 May 2025 08:21:35 GMT
+>> Connection: close
+
+✅ Access Unity.com (PASS)
+Access Unity website
+>> https://unity.com is reachable
+
+✅ Access AWS Prod Resources (PASS)
+Access AWS Prod Resources
+>> https://public-cdn.cloud.unity3d.com/hub/prod/latest.yml is reachable
+
+❓ Ping latest editor URL (UNKNOWN)
+Measure the latency of the latest editor download endpoint
+>> Diagnostic check could not complete! See log for details.
+
+❓ Partial download of latest editor (UNKNOWN)
+Test the downloadability of the latest editor
+>> Diagnostic check could not complete! See log for details.
+
+✅ HTTP timing test with the latest editor download URL (PASS)
+Test the HTTP timings with the latest editor download URL
+>> HTTP Timing test results
+>> Timings:
+>> 	socket: 1.66 ms
+>> 	lookup: 41.87 ms
+>> 	connect: 64.91 ms
+>> 	response: 305.50 ms
+>> 	end: 305.89 ms
+>> Timing Phases:
+>> 	wait: 1.66 ms
+>> 	dns: 40.22 ms
+>> 	tcp: 23.04 ms
+>> 	firstByte: 240.59 ms
+>> 	download: 0.39 ms
+>> 	total: 305.89 ms
+
+❌ Access Unity Services Endpoints (FAIL)
+Access Unity Services Endpoints
+>> Not all services are reachable

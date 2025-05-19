@@ -1,0 +1,13 @@
+apiRules:
+  - exclude:
+      uidRegex: ^Unity\.AI\.Navigation\.Editor\.Converter.*$
+      type: Namespace
+  - exclude:
+      uidRegex: ^Unity\.AI\.Navigation\.Samples.*$
+      type: Namespace
+  - exclude:
+      uidRegex: ^Unity\.AI\.Navigation\.Tests.*$
+      type: Namespace
+  - exclude:
+      uidRegex: ^Unity\.AI\.Navigation\.Editor\.Tests.*$
+      type: Namespace
