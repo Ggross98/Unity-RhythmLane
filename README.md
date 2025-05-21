@@ -1,7 +1,7 @@
 # RhythmLane
 [中文版](README_zh.md)  
 ## Overview
-Rhythm game with falling notes (like djmax or osumania) and a corresponding sheet editor. Made with Unity.  
+Rhythm game with falling notes (like djmax or osumania) and a corresponding sheet editor. Made with Unity 2022.  
   
 **Current issues**    
 * There are problems with the holding keys.
@@ -14,8 +14,8 @@ Rhythm game with falling notes (like djmax or osumania) and a corresponding shee
 This part of content is from [setchi](https://github.com/setchi/NoteEditor). Thanks a lot for this great work!  
 The editor supports:  
 * Load .wav music files
-* Edit on 2-5 tracks with 2 types of notes (normal and holding note)
-* Set the beats and offset
+* Edit on 2-5 tracks with 2 types of notes (click and holding)
+* Set the bpm and offset
 * Save the sheet as .json file    
 ![Editor](screenshots/editor.png)  
 
@@ -34,5 +34,5 @@ Some setting options are provided:
 
 ## How to play
 You can download the game and a test sheet (.wav and .json files) in release.  
-Or you can open the project with Unity 2022.3.53 f1c1.  
+Or you can open the project with Unity 2022.3.57 f1c2.  
 
