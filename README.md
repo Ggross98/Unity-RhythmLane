@@ -2,6 +2,7 @@
 [中文版](README_zh.md)  
 ## Overview
 Rhythm game with falling notes (like djmax or osumania) and a corresponding sheet editor. Made with Unity 2022.  
+A [Godot remake](https://github.com/Ggross98/Godot-RhythmLane) is now available!
   
 **Current issues**    
 * There are problems with the holding keys.
